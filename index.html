@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      text-align: center;
+      margin: 50px;
+    }
+  
+    #quiz-container {
+      max-width: 400px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+  
+    #mot-display {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #343a40;
+    }
+  
+    #reponse-input {
+      width: 100%;
+      padding: 12px;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      outline: none;
+    }
+  
+    #verifier-button {
+      background-color: #28a745;
+      color: #ffffff;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+  
+    #verifier-button:hover {
+      background-color: #218838;
+    }
+  
+    #resultat {
+      color: #dc3545;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+  
+    #questions-restantes {
+      font-size: 14px;
+      color: #6c757d;
+      margin-bottom: 10px;
+    }
+  
+    #compteur-questions {
+      font-weight: bold;
+      font-size: 18px;
+      color: #007bff;
+    }
+
+/* Mode sombre */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+  }
+
+  /* Autres styles de mode sombre */
+  #dark-mode-button.dark-mode {
+    background-color: #303030;
+    color: #ffffff;
+  }
+
+  /* Styles pour le mode clair */
+  body.light-mode {
+    background-color: #f8f9fa;
+    color: #000000;
+  }
+
+  /* Autres styles de mode clair */
+  #dark-mode-button.light-mode {
+    background-color: #007bff;
+    color: #ffffff;
+  }
+
+  #dark-mode-button {
+  position: fixed;
+  top: 20px;
+  left: 20px; /* Ajustez la valeur selon votre préférence */
+  background-color: #e1e7ed;
+  color: #01080f;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+  </style>
+
+</head>
+<body>
+
+<!-- Zone du quiz -->
+    <!-- Ajoutez ce bouton où vous souhaitez dans votre page -->
+    <button id="dark-mode-button">🌙 Activer le mode sombre</button>
+
+<div id="quiz-container">
+    <h2 id="mot-display">Mot à deviner</h2>
+    <input type="text" id="reponse-input" placeholder="Entrez votre réponse">
+    <button onclick="verifierReponse()">Soumettre</button>
+    <p id="resultat"></p>
+  </div>
+
+  <!-- Compteur de questions restantes -->
+  <p id="questions-restantes">Questions restantes : <span id="compteur-questions">20</span></p>
+
+      
+<script>
+
+const darkModeButton = document.getElementById("dark-mode-button");
+
+darkModeButton.addEventListener("click", function() {
+  const isDarkMode = document.body.classList.toggle("dark-mode");
+
+  // Change button text based on current mode
+  darkModeButton.textContent = isDarkMode ? " ☀️ " : "🌙 ";
+
+  // Change button color based on current mode
+  darkModeButton.style.backgroundColor = isDarkMode ? "#e1e7ed" : "#343a40";
+  darkModeButton.style.color = isDarkMode ? "#01080f" : "#ffffff";
+});
+
+// Initial check for dark mode
+const isDarkModeInitial = document.body.classList.contains("dark-mode");
+darkModeButton.textContent = isDarkModeInitial ? " ☀️ " : " 🌙 ";
+darkModeButton.style.backgroundColor = isDarkModeInitial ? "#e1e7ed" : "#343a40";
+darkModeButton.style.color = isDarkModeInitial ? "#01080f" : "#ffffff";
+
+
+  // Paires de mots et de significations
+  var motsEtSignifications = [
+  { mot: "A(n)", signification: "Absence de" },
+  { mot: "Acou", signification: "Entendre" },
+  { mot: "Acu", signification: "Aiguille" },
+  { mot: "Acro", signification: "Extrémité" },
+  { mot: "Ad", signification: "près de" },
+  { mot: "Adéno", signification: "Glande" },
+  { mot: "Aér(o)", signification: "Air" },
+  { mot: "Algie", signification: "Douleur" },
+  { mot: "Allo-", signification: "Étranger, autre" },
+  { mot: "Andr(o)", signification: "Homme" },
+  { mot: "Angi(o)", signification: "Vaisseau" },
+  { mot: "Anté", signification: "Avant" },
+  { mot: "Anter(i)", signification: "Devant, avant" },
+  { mot: "Anti-", signification: "Contre" },
+  { mot: "Artéri(o)", signification: "Artère" },
+  { mot: "Arthr(o)", signification: "Articulation" },
+  { mot: "Athér(o)", signification: "Gras" },
+  { mot: "Audi(o)", signification: "Audition" },
+  { mot: "Aur(i)", signification: "Oreille" },
+  { mot: "Aut(o)", signification: "Soi" },
+  { mot: "Bi, Bis", signification: "Double, deux" },
+  { mot: "Brachy", signification: "Petit" },
+  { mot: "Brady", signification: "Lent" },
+  { mot: "Bucc(o)", signification: "Joue" },
+  { mot: "Calc", signification: "Calcium" },
+  { mot: "Carcin(o)", signification: "Cancer" },
+  { mot: "Cardi(o)", signification: "Cœur" },
+  { mot: "Caryo", signification: "Noyau cellulaire" },
+  { mot: "Céphal(o)", signification: "Tête" },
+  { mot: "Cérébell", signification: "Cervelet" },
+  { mot: "Cervi", signification: "Cou" },
+  { mot: "Cervix", signification: "Col de l'utérus" },
+  { mot: "Chimi", signification: "Substance chimique" },
+  { mot: "Chir", signification: "Rachis" },
+  { mot: "Chlor", signification: "Vert" },
+  { mot: "Cholé", signification: "Bile" },
+  { mot: "Cholécyst", signification: "Vésicule biliaire" },
+  { mot: "Chondr(o)", signification: "Cartilage" },
+  { mot: "Chrom", signification: "Couleur" },
+  { mot: "Co-", signification: "Avec" },
+  { mot: "Col", signification: "Côlon" },
+  { mot: "Colp", signification: "Vagin" },
+  { mot: "Cox", signification: "Hanche" },
+  { mot: "Cost(o)", signification: "Côte" },
+  { mot: "Crâni", signification: "Cranien" },
+  { mot: "Cry(o)", signification: "Froid" },
+  { mot: "Cut", signification: "Peau" },
+  { mot: "Cyan(o)", signification: "Bleu" },
+  { mot: "Cyst(o)", signification: "Vessie" },
+  { mot: "Cyto", signification: "Cellule" },
+  { mot: "Dactyl(o)", signification: "Doigt ou orteil" },
+  { mot: "Derm(ato)", signification: "Peau" },
+  { mot: "Desm", signification: "Ligament" },
+  { mot: "Deut", signification: "Second" },
+  { mot: "Dia-", signification: "À travers" },
+  { mot: "Disc", signification: "Disque intervertébral" },
+  { mot: "Dors", signification: "Dos" },
+  { mot: "Dys", signification: "Déficient, anormal" },
+  { mot: "Ectomie", signification: "Excision" },
+  { mot: "Émèse", signification: "Émission, vomissement" },
+  { mot: "Émie", signification: "Sang" },
+  { mot: "Encéphal(o)", signification: "Cerveau" },
+  { mot: "End(o)", signification: "Intérieur" },
+  { mot: "Entér(o)", signification: "Intestin" },
+  { mot: "Épi", signification: "Au-dessus" },
+  { mot: "Eu-", signification: "Normal" },
+  { mot: "Ergo", signification: "Travail" },
+  { mot: "Érythr(o)", signification: "Rouge" },
+  { mot: "Exo", signification: "À l’extérieur" },
+  { mot: "Extra", signification: "Hors de" },
+  { mot: "Foet", signification: "Fœtus" },
+  { mot: "Gastr(o)", signification: "Estomac" },
+  { mot: "Gène", signification: "Engendre, produit" },
+  { mot: "Gén", signification: "Devenir, provenir" },
+  { mot: "Gingiv", signification: "Gencives" },
+  { mot: "Gloss(o)", signification: "Langue" },
+  { mot: "Gluc", signification: "Glucose" },
+  { mot: "Glyc(o)", signification: "Sucre" },
+  { mot: "Gon", signification: "Genou" },
+  { mot: "Graphie", signification: "Enregistrement graphique" },
+  { mot: "Gyn", signification: "Femme" },
+  { mot: "Hém(ato)", signification: "Sang" },
+  { mot: "Hémi", signification: "Demi" },
+  { mot: "Hépat(o)", signification: "Foie" },
+  { mot: "Hist(o)", signification: "Tissu" },
+  { mot: "Homéo-", signification: "Semblable" },
+  { mot: "Hydr", signification: "Eau" },
+  { mot: "Iâtre", signification: "Médecin" },
+  { mot: "Inter-", signification: "Entre" },
+  { mot: "Isch", signification: "Arrêt, suppression" },
+  { mot: "Iso-", signification: "Même, égal" },
+  { mot: "Ite", signification: "Inflammation" },
+  { mot: "Kali", signification: "Potassium" },
+  { mot: "Kinés", signification: "Mouvement" },
+  { mot: "Lapar(o)", signification: "Paroi abdominale" },
+  { mot: "Laryng", signification: "Larynx" },
+  { mot: "Leptique", signification: "Mince, faible" },
+  { mot: "Leuc(o)", signification: "Blanc" },
+  { mot: "Lingu(o)", signification: "Langue" },
+  { mot: "Lip(o)", signification: "Graisse" },
+  { mot: "Logie", signification: "Etude, science" },
+  { mot: "Logue", signification: "Spécialiste" },
+  { mot: "Lomb", signification: "Région lombaire" },
+  { mot: "Lyse", signification: "Dissolution, dissociation" },
+  { mot: "Macro", signification: "Grand" },
+  { mot: "Mal", signification: "Mauvais, anormal" },
+  { mot: "Malac", signification: "Mou" },
+  { mot: "Mamm(o)", signification: "Sein" },
+  { mot: "Mast(o)", signification: "Sein" },
+  { mot: "Mégal(o)", signification: "Grand" },
+  { mot: "Mélan(o)", signification: "Noir" },
+  { mot: "Méning(o)", signification: "Membranes" },
+  { mot: "Mél, Mèle", signification: "Membre" },
+  { mot: "Méso-", signification: "Milieu" },
+  { mot: "Micro", signification: "Petit" },
+  { mot: "My(o)", signification: "Muscle" },
+  { mot: "Myc(o)", signification: "Champignon" },
+  { mot: "Myél(o)", signification: "Moelle" },
+  { mot: "Nas(o)", signification: "Nez" },
+  { mot: "Nécr(o)", signification: "Mort" },
+  { mot: "Néphr(o)", signification: "Rein" },
+  { mot: "Neur(o)", signification: "Nerf" },
+  { mot: "Nigr", signification: "Noir" },
+  { mot: "Nuclé", signification: "Noyau" },
+  { mot: "Ocul(o)", signification: "Oeil" },
+  { mot: "Odyn(o)", signification: "Douleur" },
+  { mot: "Ome", signification: "Idée de tumeur" },
+  { mot: "Onco", signification: "Tumeur" },
+  { mot: "Oophor(o)", signification: "Ovaires" },
+  { mot: "Ophtalmo", signification: "Oeil" },
+  { mot: "Opo", signification: "Extrait soluble" },
+  { mot: "Orchi(o)", signification: "Testicule" },
+  { mot: "Ose", signification: "Maladie non inflammatoire" },
+  { mot: "Ose", signification: "Sucre simple" },
+  { mot: "Osm", signification: "Odeur" },
+  { mot: "Ostéo", signification: "Os" },
+  { mot: "Ot(o)", signification: "Oreille" },
+  { mot: "Path(o)", signification: "Maladie" },
+  { mot: "Péd(o)", signification: "Enfant" },
+  { mot: "Pénie", signification: "Pauvreté, diminution" },
+  { mot: "Peps, Pept", signification: "Digérer" },
+  { mot: "Péri", signification: "Autour" },
+  { mot: "Phag(o)", signification: "Manger, détruire" },
+  { mot: "Pharmaco", signification: "Médicament" },
+  { mot: "Pharyng(o)", signification: "Gorge" },
+  { mot: "Phléb(o)", signification: "Veine" },
+  { mot: "Phob(ie)", signification: "Peur" },
+  { mot: "Plastie", signification: "Remise en état" },
+  { mot: "Plég(ie)", signification: "Paralysie" },
+  { mot: "Pnée", signification: "Respiration" },
+  { mot: "Pneum(ato)", signification: "Respiration, air" },
+  { mot: "Pneumon(o)", signification: "Poumon" },
+  { mot: "Pod(o)", signification: "Pied" },
+  { mot: "Poie", signification: "Faire, produire" },
+  { mot: "Poly", signification: "Beaucoup, nombreux" },
+  { mot: "Post", signification: "Après" },
+  { mot: "Postér(i)", signification: "Dos, derrière" },
+  { mot: "Presby", signification: "gé" },
+  { mot: "Proct(o)", signification: "Anus" },
+  { mot: "Pseud(o)", signification: "Faux" },
+  { mot: "Pachy-", signification: "Épais" },
+  { mot: "Pan-", signification: "Tous" },
+  { mot: "Para-", signification: "opposition, hors de" },
+  { mot: "Pare", signification: "Accouchement" },
+  { mot: "Patell", signification: "Rotule" },
+  { mot: "Path, pathie", signification: "Maladie" },
+  { mot: "Pénie", signification: "Pauvreté, diminution" },
+  { mot: "Peri-", signification: "Autour" },
+  { mot: "Pexie", signification: "Ajuster" },
+  { mot: "Phile", signification: "Affinité pour" },
+  { mot: "Phléb", signification: "Veine" },
+  { mot: "Phot", signification: "Lumière" },
+  { mot: "Plégie", signification: "Paralysie" },
+  { mot: "Pleur", signification: "Plèvre" },
+  { mot: "Pnée", signification: "Respiration" },
+  { mot: "Pneum", signification: "Air, respiration" },
+  { mot: "Plasie", signification: "Formation" },
+  { mot: "Plastie", signification: "Opération plastique" },
+  { mot: "Poïèse", signification: "Fabrication, production" },
+  { mot: "Polio", signification: "Substance grise" },
+  { mot: "Pollaki-", signification: "Souvent" },
+  { mot: "Poly-", signification: "Plusieurs" },
+  { mot: "Proct", signification: "Anus" },
+  { mot: "Proso", signification: "En avant, loin" },
+  { mot: "Prosop", signification: "Visage" },
+  { mot: "Protér", signification: "Premier" },
+  { mot: "Ptose", signification: "Chute, descente" },
+  { mot: "Ptysie", signification: "Crachat" },
+  { mot: "Pulm", signification: "Poumon" },
+  { mot: "Pyél(o)", signification: "Bassinet" },
+  { mot: "Pyr(o)", signification: "Fièvre, feu" },
+  { mot: "Rachi(o)", signification: "Colonne vertébrale" },
+  { mot: "Rén(o)", signification: "Reins" },
+  { mot: "Rhag", signification: "Casser, éclater" },
+  { mot: "Rhé", signification: "Flux" },
+  { mot: "Rhin(o)", signification: "Nez" },
+  { mot: "Sclér(o)", signification: "Dur" },
+  { mot: "Scope", signification: "Instrument" },
+  { mot: "Scopie", signification: "Examen" },
+  { mot: "Somat(o)", signification: "Corps" },
+  { mot: "Spondyl(o)", signification: "Vertèbres" },
+  { mot: "Stéat(o)", signification: "Graisse" },
+  { mot: "Stén(o)", signification: "Étroit, compressé" },
+  { mot: "Stéth(o)", signification: "Thorax" },
+  { mot: "Stom", signification: "Bouche, ouverture" },
+  { mot: "Supra", signification: "Au-dessus" },
+  { mot: "Tachy", signification: "Rapide" },
+  { mot: "Thérap", signification: "Traitement" },
+  { mot: "Therm(o)", signification: "Chaleur" },
+  { mot: "Thorac(o)", signification: "Thorax" },
+  { mot: "Thromb(o)", signification: "Caillot, grosseur" },
+  { mot: "Tomie", signification: "Incision" },
+  { mot: "Tox(i)", signification: "Poison" },
+  { mot: "Urie", signification: "Urine" },
+  { mot: "Vas(o)", signification: "Vaisseau" },
+  { mot: "Vén(o)", signification: "Veine" },
+  { mot: "Vésic(o)", signification: "Vessie" },
+  { mot: "Xér(o)", signification: "Sec" },
+  { mot: "Xanth(o)", signification: "Jaune" },
+  ];
+
+  var indiceMotActuel = 0;
+  var score = 0;
+  var questionsRestantes = 20;
+  var nombreErreurs = 0;
+  var premierCoupReussi = true; // Ajout de cette variable
+
+  function afficherNouveauMot() {
+    // Assurez-vous que cette fonction choisit un indice de manière aléatoire
+    indiceMotActuel = Math.floor(Math.random() * motsEtSignifications.length);
+
+    var motActuel = motsEtSignifications[indiceMotActuel].mot;
+    document.getElementById("mot-display").textContent = motActuel;
+    document.getElementById("reponse-input").value = "";
+    document.getElementById("resultat").textContent = "";
+  }
+
+  function verifierReponse() {
+  var reponseUtilisateur = document.getElementById("reponse-input").value.toLowerCase();
+  var significationActuelle = motsEtSignifications[indiceMotActuel].signification.toLowerCase();
+
+  if (reponseUtilisateur.trim() === "") {
+    document.getElementById("resultat").textContent = "Veuillez entrer une réponse.";
+    return;
+  }
+
+  // Effacer le champ de texte après chaque tentative
+  document.getElementById("reponse-input").value = "";
+
+  if (reponseUtilisateur === significationActuelle) {
+    if (premierCoupReussi) {
+      score++;
+    }
+    questionsRestantes--;
+    document.getElementById("resultat").textContent = "Bonne réponse!";
+    premierCoupReussi = true; // Réinitialiser le flag après chaque réponse correcte
+    afficherProchainMot(); // Déplacer cette ligne ici pour éviter l'incrémentation du score en cas de deuxième erreur
+  } else {
+    nombreErreurs++;
+    premierCoupReussi = false; // Marquer le mot comme n'ayant pas été trouvé du premier coup
+
+    if (nombreErreurs === 1) {
+      document.getElementById("resultat").textContent = "Faux. Essayez à nouveau.";
+    } else if (nombreErreurs === 2) {
+      document.getElementById("resultat").textContent = "Faux. La réponse correcte est : " + significationActuelle;
+
+      // Ne pas incrémenter le nombre de questions restantes après la deuxième erreur
+      nombreErreurs = 0; // Réinitialiser le compteur après la deuxième erreur
+    }
+  }
+}
+
+  function afficherProchainMot() {
+    if (questionsRestantes === 0) {
+      // Rediriger vers la page du score avec le paramètre 'score'
+      window.location.href = "score.html?score=" + score;
+    } else {
+      // Si des questions restent, afficher un nouveau mot
+      afficherNouveauMot();
+      document.getElementById("compteur-questions").innerText = questionsRestantes;
+
+      // Réinitialiser le nombre d'erreurs après une réponse correcte
+      nombreErreurs = 0;
+
+      // Effacer le champ de texte après une réponse correcte ou incorrecte
+      document.getElementById("reponse-input").value = "";
+    }
+  }
+
+  // Ajouter un gestionnaire d'événements pour la touche Entrée
+  document.getElementById("reponse-input").addEventListener("keyup", function(event) {
+    if (event.key === "Enter") {
+      verifierReponse();
+    }
+  });
+
+  // Appel initial pour afficher le premier mot
+  afficherNouveauMot();
+
+</script>
+</body>
+</html>

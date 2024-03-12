@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Affichage du Score</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      text-align: center;
+      margin: 50px;
+    }
+  
+    #score-container {
+      max-width: 400px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    #mot-display {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #343a40;
+    }
+
+    #score-gif {
+      max-width: 100%;
+      margin-top: 20px;
+      margin-bottom: 5px;
+    }
+
+    a:visited {
+  color: #000000; /* Choisir la couleur de texte souhaitée pour les liens visités */
+  text-decoration: none; /* Enlever la soulignement */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Zone du quiz -->
+  <div id="score-container">
+    <h2 id="mot-display">Score</h2>
+    <p id="score-message"></p>
+    <img id="score-gif" src="" alt="">
+    <a href="index.html">Recommencer</a>
+  </div>
+
+  <script>
+    // Récupérez le score depuis l'URL ou une autre source et affichez-le
+    var urlParams = new URLSearchParams(window.location.search);
+    var score = urlParams.get('score');
+    var gifPath = "";
+
+    if (score !== null) {
+      document.getElementById('score-message').innerText = "Votre score final est : " + score;
+
+      // Choisissez le GIF en fonction de la tranche du score
+      if (score >= 0 && score <= 5) {
+        gifPath = "cringe.gif";
+      } else if (score > 5 && score <= 10) {
+        gifPath = "mid.gif";
+      } else if (score > 10 && score <= 15) {
+        gifPath = "good.gif";
+      } else if (score > 15 && score <= 20) {
+        gifPath = "king.gif";
+      }
+
+      // Affichez le GIF
+      document.getElementById('score-gif').src = gifPath;
+    } else {
+      document.getElementById('score-message').innerText = "Score non disponible.";
+    }
+  </script>
+
+</body>
+</html>
