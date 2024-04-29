@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8f9fa;
+      background-color: #121212;
       text-align: center;
       margin: 50px;
     }
@@ -52,9 +52,9 @@
 
   <script>
     // Récupérez le score depuis l'URL ou une autre source et affichez-le
-    var urlParams = new URLSearchParams(window.location.search);
-    var score = urlParams.get('score');
-    var gifPath = "";
+    let urlParams = new URLSearchParams(window.location.search);
+    let score = urlParams.get('score');
+    let gifPath = "";
 
     if (score !== null) {
       document.getElementById('score-message').innerText = "Votre score final est : " + score;
