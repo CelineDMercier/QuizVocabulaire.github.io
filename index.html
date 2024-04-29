@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8f9fa;
+      background-color: #121212;
       text-align: center;
       margin: 50px;
     }
@@ -68,46 +68,8 @@
     #compteur-questions {
       font-weight: bold;
       font-size: 18px;
-      color: #007bff;
+      color: #40c134;
     }
-
-/* Mode sombre */
-body.dark-mode {
-    background-color: #121212;
-    color: #ffffff;
-  }
-
-  /* Autres styles de mode sombre */
-  #dark-mode-button.dark-mode {
-    background-color: #303030;
-    color: #ffffff;
-  }
-
-  /* Styles pour le mode clair */
-  body.light-mode {
-    background-color: #f8f9fa;
-    color: #000000;
-  }
-
-  /* Autres styles de mode clair */
-  #dark-mode-button.light-mode {
-    background-color: #007bff;
-    color: #ffffff;
-  }
-
-  #dark-mode-button {
-  position: fixed;
-  top: 20px;
-  left: 20px; /* Ajustez la valeur selon votre préférence */
-  background-color: #e1e7ed;
-  color: #01080f;
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
 
   </style>
 
@@ -115,8 +77,6 @@ body.dark-mode {
 <body>
 
 <!-- Zone du quiz -->
-    <!-- Ajoutez ce bouton où vous souhaitez dans votre page -->
-    <button id="dark-mode-button">🌙 Activer le mode sombre</button>
 
 <div id="quiz-container">
     <h2 id="mot-display">Mot à deviner</h2>
@@ -131,28 +91,8 @@ body.dark-mode {
       
 <script>
 
-const darkModeButton = document.getElementById("dark-mode-button");
-
-darkModeButton.addEventListener("click", function() {
-  const isDarkMode = document.body.classList.toggle("dark-mode");
-
-  // Change button text based on current mode
-  darkModeButton.textContent = isDarkMode ? " ☀️ " : "🌙 ";
-
-  // Change button color based on current mode
-  darkModeButton.style.backgroundColor = isDarkMode ? "#e1e7ed" : "#343a40";
-  darkModeButton.style.color = isDarkMode ? "#01080f" : "#ffffff";
-});
-
-// Initial check for dark mode
-const isDarkModeInitial = document.body.classList.contains("dark-mode");
-darkModeButton.textContent = isDarkModeInitial ? " ☀️ " : " 🌙 ";
-darkModeButton.style.backgroundColor = isDarkModeInitial ? "#e1e7ed" : "#343a40";
-darkModeButton.style.color = isDarkModeInitial ? "#01080f" : "#ffffff";
-
-
   // Paires de mots et de significations
-  var motsEtSignifications = [
+  let motsEtSignifications = [
   { mot: "A(n)", signification: "Absence de" },
   { mot: "Acou", signification: "Entendre" },
   { mot: "Acu", signification: "Aiguille" },
@@ -374,25 +314,25 @@ darkModeButton.style.color = isDarkModeInitial ? "#01080f" : "#ffffff";
   { mot: "Xanth(o)", signification: "Jaune" },
   ];
 
-  var indiceMotActuel = 0;
-  var score = 0;
-  var questionsRestantes = 20;
-  var nombreErreurs = 0;
-  var premierCoupReussi = true; // Ajout de cette variable
+  let indiceMotActuel = 0;
+  let score = 0;
+  let questionsRestantes = 20;
+  let nombreErreurs = 0;
+  let premierCoupReussi = true; // Ajout de cette variable
 
   function afficherNouveauMot() {
     // Assurez-vous que cette fonction choisit un indice de manière aléatoire
     indiceMotActuel = Math.floor(Math.random() * motsEtSignifications.length);
 
-    var motActuel = motsEtSignifications[indiceMotActuel].mot;
+    let motActuel = motsEtSignifications[indiceMotActuel].mot;
     document.getElementById("mot-display").textContent = motActuel;
     document.getElementById("reponse-input").value = "";
     document.getElementById("resultat").textContent = "";
   }
 
   function verifierReponse() {
-  var reponseUtilisateur = document.getElementById("reponse-input").value.toLowerCase();
-  var significationActuelle = motsEtSignifications[indiceMotActuel].signification.toLowerCase();
+  let reponseUtilisateur = document.getElementById("reponse-input").value.toLowerCase();
+  let significationActuelle = motsEtSignifications[indiceMotActuel].signification.toLowerCase();
 
   if (reponseUtilisateur.trim() === "") {
     document.getElementById("resultat").textContent = "Veuillez entrer une réponse.";
